@@ -61,10 +61,13 @@ class Expense extends Component {
       prevState.min_amount !== this.state.min_amount ||
       prevState.max_amount !== this.state.max_amount ||
       prevState.new !== this.state.new ||
-      prevState.merchant !== this.state.merchant;
+      prevState.merchant !== this.state.merchant ||
+      prevState.status.length !== this.state.status.length ||
+      prevState.status.toString() !== this.state.status.toString();
 
     if (refresh) {
       this.getExpenses();
+      console.log("statussss");
     }
   }
 
@@ -110,13 +113,61 @@ class Expense extends Component {
           merchant: e.target.value,
         });
         break;
+
+      case "new":
+        let statuses = this.state.status;
+        let index = statuses.indexOf("New");
+        if (index > -1) {
+          statuses.splice(index, 1);
+        } else {
+          statuses.push("New");
+        }
+
+        this.setState({
+          ...this.state,
+
+          status: statuses,
+        });
+        // console.log("statuses 1", this.state.status);
+        break;
+
+      case "reimburse":
+        let statuses2 = this.state.status;
+        let reimbursedIndex = statuses2.indexOf("Reimburse");
+        if (reimbursedIndex > -1) {
+          statuses2.splice(reimbursedIndex, 1);
+        } else {
+          statuses2.push("Reimburse");
+        }
+        this.setState({
+          ...this.state,
+          status: statuses2,
+        });
+
+        // console.log("statuses 2", this.state.status);
+        break;
+
+      case "inprogress":
+        let statuses3 = this.state.status;
+        let inprogressIndex = statuses3.indexOf("In Progress");
+        if (inprogressIndex > -1) {
+          statuses3.splice(inprogressIndex, 1);
+        } else {
+          statuses3.push("In Progress");
+        }
+
+        this.setState({
+          ...this.state,
+
+          status: statuses3,
+        });
+        // console.log("statuses 3", this.state.status);
+        break;
       default:
         break;
     }
     // console.log(this.state);
   };
-
-  formHandler = () => {};
 
   onChangeImportField = (e) => {
     this.setState({
@@ -135,7 +186,7 @@ class Expense extends Component {
       min_amount: this.state.min_amount,
       max_amount: this.state.max_amount,
       merchant: this.state.merchant,
-      status: ["New", "Reimburse", "In Progress"],
+      status: this.state.status,
     };
     AuthService.getExpenses(newData)
       .then((response) => {
@@ -357,6 +408,7 @@ class Expense extends Component {
                         name="new"
                         id="new"
                         value={this.state.new}
+                        defaultChecked
                       />
                       &nbsp; New
                     </label>
@@ -365,9 +417,10 @@ class Expense extends Component {
                       <input
                         onChange={this.handleInputChange}
                         type="checkbox"
-                        name="status"
+                        name="inprogress"
                         value="In progress"
                         id="inprogress"
+                        defaultChecked
                       />
                       &nbsp; In Progress
                     </label>
@@ -376,8 +429,8 @@ class Expense extends Component {
                       <input
                         onChange={this.handleInputChange}
                         type="checkbox"
-                        name="status"
-                        value="Reimbursed"
+                        name="reimburse"
+                        value="Reimburse"
                         id="reimbursed"
                         defaultChecked
                       />

@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React, { Component } from "react";
 import { Link, Navigate } from "react-router-dom";
-import Users from "./Users";
+// import Users from "./Users";
 
 class Profile extends Component {
   render() {
@@ -18,7 +18,7 @@ class Profile extends Component {
           </Link>
         </span>
 
-        <Users />
+        {/* <Users /> */}
       </div>
     );
   }
