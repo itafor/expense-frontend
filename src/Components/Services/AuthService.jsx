@@ -31,6 +31,10 @@ class AuthService {
     });
   }
 
+  getExpensesToReimburse() {
+    return http.get("/user/expense/to-reimburse", { headers: AuthHeader() });
+  }
+
   register(data) {
     return http.post("/user/auth/signup", data);
   }

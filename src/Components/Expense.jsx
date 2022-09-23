@@ -38,14 +38,15 @@ class Expense extends Component {
       show: false,
       showEditExpense: false,
       expenseId: "",
-      retrievedExpenses: [],
       user: "",
+      expenses_ToReimburse: null,
     };
   }
 
   componentDidMount() {
     this.getExpenses();
     this.getUser();
+    this.expensesToReimburse();
   }
 
   getUser() {
@@ -73,8 +74,6 @@ class Expense extends Component {
 
   handleInputChange = (e) => {
     // e.preventDefault();
-    // this.getExpenses();
-
     switch (e.target.name) {
       case "from":
         this.setState({
@@ -93,7 +92,6 @@ class Expense extends Component {
       case "min_amount":
         this.setState({
           ...this.state,
-
           min_amount: e.target.value,
         });
         break;
@@ -119,16 +117,15 @@ class Expense extends Component {
         let index = statuses.indexOf("New");
         if (index > -1) {
           statuses.splice(index, 1);
+          this.getExpenses();
         } else {
           statuses.push("New");
+          this.getExpenses();
         }
-
         this.setState({
           ...this.state,
-
           status: statuses,
         });
-        // console.log("statuses 1", this.state.status);
         break;
 
       case "reimburse":
@@ -136,15 +133,16 @@ class Expense extends Component {
         let reimbursedIndex = statuses2.indexOf("Reimburse");
         if (reimbursedIndex > -1) {
           statuses2.splice(reimbursedIndex, 1);
+          this.getExpenses();
         } else {
           statuses2.push("Reimburse");
+          this.getExpenses();
         }
         this.setState({
           ...this.state,
           status: statuses2,
         });
 
-        // console.log("statuses 2", this.state.status);
         break;
 
       case "inprogress":
@@ -152,8 +150,10 @@ class Expense extends Component {
         let inprogressIndex = statuses3.indexOf("In Progress");
         if (inprogressIndex > -1) {
           statuses3.splice(inprogressIndex, 1);
+          this.getExpenses();
         } else {
           statuses3.push("In Progress");
+          this.getExpenses();
         }
 
         this.setState({
@@ -161,12 +161,10 @@ class Expense extends Component {
 
           status: statuses3,
         });
-        // console.log("statuses 3", this.state.status);
         break;
       default:
         break;
     }
-    // console.log(this.state);
   };
 
   onChangeImportField = (e) => {
@@ -175,7 +173,8 @@ class Expense extends Component {
     });
   };
 
-  clearForm = () => {
+  clearForm = (e) => {
+    e.preventDefault();
     document.getElementById("expenseform").reset();
   };
 
@@ -195,9 +194,11 @@ class Expense extends Component {
           getAllExpenses: response.data ? response.data.data : [],
           loading: true,
         });
-        // console.log("exp", response.data.data);
         $(document).ready(function () {
-          $("#datatable").DataTable();
+          $("#datatable").DataTable({
+            pageLength: 50,
+            bDestroy: true,
+          });
         });
       })
       .catch((error) => {});
@@ -251,6 +252,18 @@ class Expense extends Component {
       });
   }
 
+  expensesToReimburse = () => {
+    AuthService.getExpensesToReimburse()
+      .then((response) => {
+        console.log("expenses_ToReimburse", response.data.data);
+        this.setState({
+          ...this.state,
+          expenses_ToReimburse: response.data ? response.data.data : "",
+        });
+      })
+      .catch((error) => {});
+  };
+
   render() {
     const {
       from,
@@ -265,6 +278,7 @@ class Expense extends Component {
       errorMessages,
       successReg,
       user,
+      expenses_ToReimburse,
     } = this.state;
 
     const list_expenses =
@@ -274,7 +288,7 @@ class Expense extends Component {
           <tr key={key}>
             <td>{Moment(expense.date).format("DD/MM/YYYY")}</td>
             <td>{expense.merchant}</td>
-            <td>{expense.total_amount}</td>
+            <td>&#36;{expense.total_amount}</td>
             <td
               style={
                 expense.status == "New"
@@ -313,7 +327,7 @@ class Expense extends Component {
               <div className="card-header">
                 <span className="float-start"> Filter expenses</span>
                 <span
-                  onClick={() => this.clearForm()}
+                  onClick={(e) => this.clearForm(e)}
                   className="float-end"
                   style={{ color: "blue", cursor: "pointer" }}
                 >
@@ -322,8 +336,8 @@ class Expense extends Component {
               </div>
               <div className="card-body">
                 <form id="expenseform" autoComplete="off">
-                  <div className="mb-3">
-                    <label className="form-label text-uppercase">
+                  <div className="mb-0">
+                    <label className="form-label">
                       From: {this.state.from}
                     </label>
                     <input
@@ -334,10 +348,8 @@ class Expense extends Component {
                       value={this.state.from}
                     />
                   </div>
-                  <div className="mb-3">
-                    <label className="form-label text-uppercase">
-                      To : {this.state.to}
-                    </label>
+                  <div className="mb-0">
+                    <label className="form-label">To</label>
                     <input
                       onChange={this.handleInputChange}
                       className="form-control"
@@ -346,10 +358,8 @@ class Expense extends Component {
                       value={this.state.to}
                     />
                   </div>
-                  <div className="mb-3">
-                    <label className="form-label text-uppercase">
-                      Min: {this.state.min_amount}
-                    </label>
+                  <div className="mb-0">
+                    <label className="form-label">Min(&#36;)</label>
                     <input
                       onChange={this.handleInputChange}
                       className="form-control"
@@ -359,10 +369,8 @@ class Expense extends Component {
                     />
                   </div>
 
-                  <div className="mb-3">
-                    <label className="form-label text-uppercase">
-                      Max: {this.state.max_amount}
-                    </label>
+                  <div className="mb-0">
+                    <label className="form-label">Max(&#36;)</label>
                     <input
                       onChange={this.handleInputChange}
                       className="form-control"
@@ -373,7 +381,7 @@ class Expense extends Component {
                   </div>
                   <div className="form-group">
                     <label className="float-left">
-                      Merchant : {this.state.merchant}
+                      Merchant
                       <span className="text-danger">*</span>
                     </label>
                     <select
@@ -399,7 +407,7 @@ class Expense extends Component {
                       <option value="Breakfast">Breakfast</option>
                     </select>
                   </div>
-
+                  <label>Status</label>
                   <div className="mb-3">
                     <label className="float-left">
                       <input
@@ -477,7 +485,7 @@ class Expense extends Component {
                           </tr>
                         </thead>
 
-                        <tbody>{list_expenses}</tbody>
+                        <tbody>{list_expenses && list_expenses}</tbody>
                       </table>
                     </div>
                   )}
@@ -486,45 +494,52 @@ class Expense extends Component {
             </div>
           </div>
           <div className="col-md-2">
-            {/* 3 of 3 */}
-            <form id="importexpense-form" autoComplete="off">
-              {errorMessages ? (
-                <div className="alert alert-danger" role="alert">
-                  {" "}
-                  {errorMessages}{" "}
-                </div>
-              ) : (
-                ""
-              )}
-              {successReg ? (
-                <div className="alert alert-success" role="alert">
-                  {" "}
-                  {successReg}{" "}
-                </div>
-              ) : (
-                ""
-              )}
-              <div className="mb-3">
-                <label className="form-label text-uppercase">
-                  Import expenses
-                </label>
-                <input
-                  onChange={this.onChangeImportField}
-                  type="file"
-                  name="expensesFile"
-                  required
-                />
+            <div className="card">
+              <div className="card-header">To Be Reimburse</div>
+              <div className="card-body">
+                <span style={{ fontSize: "20px" }}>
+                  <strong> &#36;{expenses_ToReimburse}</strong>
+                </span>
+                <br />
+                <hr />
+                <form id="importexpense-form" autoComplete="off">
+                  {errorMessages ? (
+                    <div className="alert alert-danger" role="alert">
+                      {" "}
+                      {errorMessages}{" "}
+                    </div>
+                  ) : (
+                    ""
+                  )}
+                  {successReg ? (
+                    <div className="alert alert-success" role="alert">
+                      {" "}
+                      {successReg}{" "}
+                    </div>
+                  ) : (
+                    ""
+                  )}
+                  <div className="mb-3">
+                    <label className="form-label">Import expenses</label>
+                    <input
+                      onChange={this.onChangeImportField}
+                      type="file"
+                      name="expensesFile"
+                      required
+                    />
+                  </div>
+                  <div className="form-group mb-0">
+                    <button
+                      onClick={this.importExcelFile}
+                      className="btn btn-primary mt-2 mt-md-3 mt-lg-4"
+                      disabled={loadingimport}
+                    >
+                      {loadingimport ? "Importing Expenses..." : "Import"}
+                    </button>
+                  </div>
+                </form>
               </div>
-              <div className="form-group mb-0">
-                <button
-                  onClick={this.importExcelFile}
-                  className="btn btn-primary mt-2 mt-md-3 mt-lg-4"
-                  disabled={loadingimport}
-                >
-                  {loadingimport ? "Importing Expenses..." : "Import"}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
         {this.state.show && (
