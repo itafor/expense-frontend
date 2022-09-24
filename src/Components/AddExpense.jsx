@@ -151,6 +151,7 @@ class AddExpense extends Component {
     this.setState({ loading: true });
     AuthService.CreateExpense(formdata)
       .then((response) => {
+        this.props.onClose();
         this.fetchAllExpenses();
 
         this.setState({
@@ -204,16 +205,7 @@ class AddExpense extends Component {
               <div className="card">
                 <div className="card-header">
                   <div className="float-start ">Add Expense</div>
-                  <div className="float-end ">
-                    <button
-                      className="nav-link"
-                      onClick={() => {
-                        this.props.onClose();
-                      }}
-                    >
-                      Back to list
-                    </button>
-                  </div>
+                  <div className="float-end "></div>
                 </div>
                 <div className="card-body">
                   {errorMessages ? (
@@ -330,7 +322,6 @@ class AddExpense extends Component {
                         <button
                           onClick={(e) => {
                             this.onSubmit(e);
-                            this.props.onClose();
                           }}
                           className="btn btn-primary mt-2 mt-md-3 mt-lg-4 float-start"
                           disabled={loading}

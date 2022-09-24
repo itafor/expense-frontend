@@ -21,19 +21,27 @@ class Login extends Component {
       email: this.state.email,
       password: this.state.password,
     };
+    this.setState({
+      loading: true,
+    });
     AuthService.loginUser(data)
       .then((response) => {
+        window.location.reload(false);
         localStorage.setItem("token", response.data.data.access_token);
         console.log("response", response);
         this.setState({
           loggedIn: true,
+          loading: false,
         });
         this.props.setUser(response.data.user);
       })
       .catch((error) => {
         if (error.response) {
           console.log(error.response.data);
-          this.setState({ message: error.response.data.message });
+          this.setState({
+            message: error.response.data.message,
+            loading: false,
+          });
         }
       });
   };
@@ -62,6 +70,8 @@ class Login extends Component {
         </div>
       );
     }
+
+    const { loading } = this.state;
 
     return (
       <div>
@@ -95,14 +105,17 @@ class Login extends Component {
                   }
                 />
               </div>
-              <button type="submit" className="btn btn-primary btn-block">
-                Login
+              <br />
+
+              <button
+                type="submit"
+                className="btn btn-primary btn-block"
+                disabled={loading}
+              >
+                {loading ? "Please wait..." : "Login"}
               </button>
               <br />
               <div className="row" style={{ padding: "20px" }}>
-                <span className="float-left">
-                  Forget Password? <Link to="/forget-password">Click here</Link>
-                </span>
                 <span className="float-right">
                   &nbsp;&nbsp; No Account? <Link to="/register">Register</Link>
                 </span>

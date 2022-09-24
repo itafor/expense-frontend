@@ -179,6 +179,7 @@ class EditExpense extends Component {
           errorMessages: "",
           submitted: true,
         });
+        this.props.onClose();
         this.showExpense(response.data && response.data.data.id);
         this.fetchAllExpenses();
         console.log("errer msg", response.data);
@@ -232,13 +233,14 @@ class EditExpense extends Component {
               <div className="card">
                 <div className="card-header">
                   <div className="float-start ">Edit Expense</div>
-                  <div className="float-end ">
-                    <button
-                      className="nav-link"
-                      onClick={() => this.props.onClose()}
-                    >
-                      Back to list {id}
-                    </button>
+                  <div
+                    className="float-end text-danger"
+                    onClick={(e) => {
+                      this.props.onClose();
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Close
                   </div>
                 </div>
                 <div className="card-body">
@@ -430,7 +432,6 @@ class EditExpense extends Component {
                         <button
                           onClick={(e) => {
                             this.onSubmit(e);
-                            this.props.onClose();
                           }}
                           className="btn btn-primary mt-2 mt-md-3 mt-lg-4 float-start"
                           disabled={loadingExpense}

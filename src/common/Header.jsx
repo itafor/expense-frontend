@@ -21,9 +21,12 @@ class Header extends Component {
   }
 
   getUser() {
-    AuthService.authUser().then((response) => {
-      this.setUser(response.data.data);
-    });
+    const token = localStorage.getItem("token");
+    if (token) {
+      AuthService.authUser().then((response) => {
+        this.setUser(response.data.data);
+      });
+    }
   }
 
   setUser(user) {

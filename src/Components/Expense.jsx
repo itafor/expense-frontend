@@ -52,6 +52,8 @@ class Expense extends Component {
   getUser() {
     AuthService.authUser().then((response) => {
       this.setState({ user: response.data.data });
+      // this.props.setUser(response.data.data);
+      console.log("this.props", this.props);
     });
   }
 
@@ -194,12 +196,9 @@ class Expense extends Component {
           getAllExpenses: response.data ? response.data.data : [],
           loading: true,
         });
-        $(document).ready(function () {
-          $("#datatable").DataTable({
-            pageLength: 50,
-            bDestroy: true,
-          });
-        });
+        // $(document).ready(function () {
+        //   $("#datatable").DataTable();
+        // });
       })
       .catch((error) => {});
   };
@@ -285,7 +284,17 @@ class Expense extends Component {
       getAllExpenses &&
       getAllExpenses.map((expense, key) => {
         return (
-          <tr key={key}>
+          <tr
+            key={key}
+            style={{ cursor: "pointer" }}
+            onClick={() => {
+              this.setState({
+                ...this.state,
+                showEditExpense: true,
+                expenseId: expense.id,
+              });
+            }}
+          >
             <td>{Moment(expense.date).format("DD/MM/YYYY")}</td>
             <td>{expense.merchant}</td>
             <td>&#36;{expense.total_amount}</td>
@@ -301,269 +310,256 @@ class Expense extends Component {
               {expense.status}
             </td>
             <td>{expense.comment}</td>
-            <td>
-              <button
-                className="btn btn-sm"
-                onClick={() => {
-                  this.setState({
-                    ...this.state,
-                    showEditExpense: true,
-                    expenseId: expense.id,
-                  });
-                }}
-              >
-                Edit
-              </button>
-            </td>
           </tr>
         );
       });
 
     return (
-      <div className="poition-relative  w-100">
-        <div className="row">
-          <div className="col-md-3">
-            <div className="card">
-              <div className="card-header">
-                <span className="float-start"> Filter expenses</span>
-                <span
-                  onClick={(e) => this.clearForm(e)}
-                  className="float-end"
-                  style={{ color: "blue", cursor: "pointer" }}
-                >
-                  Clear filter
-                </span>
-              </div>
-              <div className="card-body">
-                <form id="expenseform" autoComplete="off">
-                  <div className="mb-0">
-                    <label className="form-label">
-                      From: {this.state.from}
-                    </label>
-                    <input
-                      onChange={this.handleInputChange}
-                      className="form-control"
-                      type="date"
-                      name="from"
-                      value={this.state.from}
-                    />
-                  </div>
-                  <div className="mb-0">
-                    <label className="form-label">To</label>
-                    <input
-                      onChange={this.handleInputChange}
-                      className="form-control"
-                      type="date"
-                      name="to"
-                      value={this.state.to}
-                    />
-                  </div>
-                  <div className="mb-0">
-                    <label className="form-label">Min(&#36;)</label>
-                    <input
-                      onChange={this.handleInputChange}
-                      className="form-control"
-                      type="number"
-                      name="min_amount"
-                      value={this.state.min_amount}
-                    />
-                  </div>
-
-                  <div className="mb-0">
-                    <label className="form-label">Max(&#36;)</label>
-                    <input
-                      onChange={this.handleInputChange}
-                      className="form-control"
-                      type="number"
-                      name="max_amount"
-                      value={this.state.max_amount}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="float-left">
-                      Merchant
-                      <span className="text-danger">*</span>
-                    </label>
-                    <select
-                      className="form-control"
-                      onChange={this.handleInputChange}
-                      type="text"
-                      name="merchant"
-                      value={this.state.merchant}
-                      required
-                    >
-                      <option value="">Select Merchant</option>
-                      <option value="Rental car">Rental car</option>
-                      <option value="Airline">Airline</option>
-                      <option value="Shuttle">Shuttle</option>
-                      <option value="Taxi">Taxi</option>
-                      <option value="Ride sharing">Ride sharing</option>
-                      <option value="Fast food">Fast food</option>
-                      <option value="Electronics">Electronics</option>
-                      <option value="Restaurant">Restaurant</option>
-                      <option value="Office supplies">Office supplies</option>
-                      <option value="Hotel">Hotel</option>
-                      <option value="Parking">Parking</option>
-                      <option value="Breakfast">Breakfast</option>
-                    </select>
-                  </div>
-                  <label>Status</label>
-                  <div className="mb-3">
-                    <label className="float-left">
-                      <input
-                        onChange={this.handleInputChange}
-                        type="checkbox"
-                        name="new"
-                        id="new"
-                        value={this.state.new}
-                        defaultChecked
-                      />
-                      &nbsp; New
-                    </label>
-                    &nbsp;&nbsp;
-                    <label className="float-left">
-                      <input
-                        onChange={this.handleInputChange}
-                        type="checkbox"
-                        name="inprogress"
-                        value="In progress"
-                        id="inprogress"
-                        defaultChecked
-                      />
-                      &nbsp; In Progress
-                    </label>
-                    &nbsp;&nbsp;
-                    <label className="float-left">
-                      <input
-                        onChange={this.handleInputChange}
-                        type="checkbox"
-                        name="reimburse"
-                        value="Reimburse"
-                        id="reimbursed"
-                        defaultChecked
-                      />
-                      &nbsp; Reimbursed
-                    </label>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-7">
-            <div className="card">
-              <div className="card-header">
-                <div className="float-start ">Expenses</div>
-                <div className="float-end">
-                  <button
-                    className="nav-link"
-                    onClick={() => {
-                      this.setState({
-                        ...this.state,
-                        show: true,
-                      });
-                    }}
+      <frameElement>
+        <div className="poition-relative  w-100">
+          <div className="row">
+            <div className="col-md-3">
+              <div className="card">
+                <div className="card-header">
+                  <span className="float-start"> Filter expenses</span>
+                  <span
+                    onClick={(e) => this.clearForm(e)}
+                    className="float-end"
+                    style={{ color: "blue", cursor: "pointer" }}
                   >
-                    Add Expense
-                  </button>
+                    Clear filter
+                  </span>
+                </div>
+                <div className="card-body">
+                  <form id="expenseform" autoComplete="off">
+                    <div className="mb-0">
+                      <label className="form-label">
+                        From: {this.state.from}
+                      </label>
+                      <input
+                        onChange={this.handleInputChange}
+                        className="form-control"
+                        type="date"
+                        name="from"
+                        value={this.state.from}
+                      />
+                    </div>
+                    <div className="mb-0">
+                      <label className="form-label">To</label>
+                      <input
+                        onChange={this.handleInputChange}
+                        className="form-control"
+                        type="date"
+                        name="to"
+                        value={this.state.to}
+                      />
+                    </div>
+                    <div className="mb-0">
+                      <label className="form-label">Min(&#36;)</label>
+                      <input
+                        onChange={this.handleInputChange}
+                        className="form-control"
+                        type="number"
+                        name="min_amount"
+                        value={this.state.min_amount}
+                      />
+                    </div>
+
+                    <div className="mb-0">
+                      <label className="form-label">Max(&#36;)</label>
+                      <input
+                        onChange={this.handleInputChange}
+                        className="form-control"
+                        type="number"
+                        name="max_amount"
+                        value={this.state.max_amount}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="float-left">
+                        Merchant
+                        <span className="text-danger">*</span>
+                      </label>
+                      <select
+                        className="form-control"
+                        onChange={this.handleInputChange}
+                        type="text"
+                        name="merchant"
+                        value={this.state.merchant}
+                        required
+                      >
+                        <option value="">Select Merchant</option>
+                        <option value="Rental car">Rental car</option>
+                        <option value="Airline">Airline</option>
+                        <option value="Shuttle">Shuttle</option>
+                        <option value="Taxi">Taxi</option>
+                        <option value="Ride sharing">Ride sharing</option>
+                        <option value="Fast food">Fast food</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Restaurant">Restaurant</option>
+                        <option value="Office supplies">Office supplies</option>
+                        <option value="Hotel">Hotel</option>
+                        <option value="Parking">Parking</option>
+                        <option value="Breakfast">Breakfast</option>
+                      </select>
+                    </div>
+                    <label>Status</label>
+                    <div className="mb-3">
+                      <label className="float-left">
+                        <input
+                          onChange={this.handleInputChange}
+                          type="checkbox"
+                          name="new"
+                          id="new"
+                          value={this.state.new}
+                          defaultChecked
+                        />
+                        &nbsp; New
+                      </label>
+                      &nbsp;&nbsp;
+                      <label className="float-left">
+                        <input
+                          onChange={this.handleInputChange}
+                          type="checkbox"
+                          name="inprogress"
+                          value="In progress"
+                          id="inprogress"
+                          defaultChecked
+                        />
+                        &nbsp; In Progress
+                      </label>
+                      &nbsp;&nbsp;
+                      <label className="float-left">
+                        <input
+                          onChange={this.handleInputChange}
+                          type="checkbox"
+                          name="reimburse"
+                          value="Reimburse"
+                          id="reimbursed"
+                          defaultChecked
+                        />
+                        &nbsp; Reimbursed
+                      </label>
+                    </div>
+                  </form>
                 </div>
               </div>
-              {loading === false ? (
-                "Fetching Expenses. Please wait...!"
-              ) : (
-                <div className="card-body">
-                  {getAllExpenses && (
-                    <div className="row table-responsive">
-                      <table id="datatable" className="display">
-                        <thead>
-                          <tr>
-                            <th>Date</th>
-                            <th>Merchant</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Comment</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-
-                        <tbody>{list_expenses && list_expenses}</tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
-          </div>
-          <div className="col-md-2">
-            <div className="card">
-              <div className="card-header">To Be Reimburse</div>
-              <div className="card-body">
-                <span style={{ fontSize: "20px" }}>
-                  <strong> &#36;{expenses_ToReimburse}</strong>
-                </span>
-                <br />
-                <hr />
-                <form id="importexpense-form" autoComplete="off">
-                  {errorMessages ? (
-                    <div className="alert alert-danger" role="alert">
-                      {" "}
-                      {errorMessages}{" "}
-                    </div>
-                  ) : (
-                    ""
-                  )}
-                  {successReg ? (
-                    <div className="alert alert-success" role="alert">
-                      {" "}
-                      {successReg}{" "}
-                    </div>
-                  ) : (
-                    ""
-                  )}
-                  <div className="mb-3">
-                    <label className="form-label">Import expenses</label>
-                    <input
-                      onChange={this.onChangeImportField}
-                      type="file"
-                      name="expensesFile"
-                      required
-                    />
-                  </div>
-                  <div className="form-group mb-0">
+            <div className="col-md-7">
+              <div className="card">
+                <div className="card-header">
+                  <div className="float-start ">Expenses</div>
+                  <div className="float-end">
                     <button
-                      onClick={this.importExcelFile}
-                      className="btn btn-primary mt-2 mt-md-3 mt-lg-4"
-                      disabled={loadingimport}
+                      className="btn btn-primary btn-sm"
+                      onClick={() => {
+                        this.setState({
+                          ...this.state,
+                          show: true,
+                        });
+                      }}
                     >
-                      {loadingimport ? "Importing Expenses..." : "Import"}
+                      Add Expense
                     </button>
                   </div>
-                </form>
+                </div>
+                {loading === false ? (
+                  "Fetching expenses. Please wait..."
+                ) : (
+                  <div className="card-body">
+                    {getAllExpenses && (
+                      <div className="row table-responsive">
+                        <table className="table sortable">
+                          <thead>
+                            <tr>
+                              <th>Date</th>
+                              <th>Merchant</th>
+                              <th>Total</th>
+                              <th>Status</th>
+                              <th>Comment</th>
+                            </tr>
+                          </thead>
+
+                          <tbody>{list_expenses && list_expenses}</tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="col-md-2">
+              <div className="card">
+                <div className="card-header">To Be Reimburse</div>
+                <div className="card-body">
+                  <span style={{ fontSize: "20px" }}>
+                    <strong> &#36;{expenses_ToReimburse}</strong>
+                  </span>
+                  <br />
+                  <hr />
+                  <form id="importexpense-form" autoComplete="off">
+                    {errorMessages ? (
+                      <div className="alert alert-danger" role="alert">
+                        {" "}
+                        {errorMessages}{" "}
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                    {successReg ? (
+                      <div className="alert alert-success" role="alert">
+                        {" "}
+                        {successReg}{" "}
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                    <div className="mb-3">
+                      <label className="form-label">Import expenses</label>
+                      <input
+                        onChange={this.onChangeImportField}
+                        type="file"
+                        name="expensesFile"
+                        required
+                      />
+                    </div>
+                    <div className="form-group mb-0">
+                      <button
+                        onClick={this.importExcelFile}
+                        className="btn btn-primary mt-2 mt-md-3 mt-lg-4"
+                        disabled={loadingimport}
+                      >
+                        {loadingimport ? "Importing Expenses..." : "Import"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
+          {this.state.show && (
+            <AddExpense
+              onClose={() => {
+                this.setState({
+                  ...this.state,
+                  show: false,
+                });
+              }}
+              parentCallback={this.handleCallback}
+            />
+          )}
+          {this.state.showEditExpense && (
+            <EditExpense
+              onClose={() => {
+                this.setState({ ...this.state, showEditExpense: false });
+              }}
+              expenseId={this.state.expenseId}
+              parentCallback={this.handleCallback}
+              user={this.state.user}
+            />
+          )}
         </div>
-        {this.state.show && (
-          <AddExpense
-            onClose={() => {
-              this.setState({
-                ...this.state,
-                show: false,
-              });
-            }}
-            parentCallback={this.handleCallback}
-          />
-        )}
-        {this.state.showEditExpense && (
-          <EditExpense
-            onClose={() => {
-              this.setState({ ...this.state, showEditExpense: false });
-            }}
-            expenseId={this.state.expenseId}
-            parentCallback={this.handleCallback}
-            user={this.state.user}
-          />
-        )}
-      </div>
+      </frameElement>
     );
   }
 }

@@ -13,6 +13,7 @@ class Register extends Component {
     error_message: "",
     errors: "",
     loggedIn: false,
+    loading: false,
   };
 
   handleInputChange(event) {
@@ -29,16 +30,21 @@ class Register extends Component {
       password: this.state.password,
       password_confirmation: this.state.password_confirmation,
     };
+    this.setState({ loading: true });
+
     AuthService.register(data)
       .then((response) => {
+        window.location.reload(false);
         localStorage.setItem("token", response.data.data.access_token);
         this.setState({ message: response.data.message, loggedIn: true });
         this.props.setUserx(response.data.user);
+        this.setState({ loading: false });
       })
       .catch((error) => {
         if (error.response) {
           this.setState({
             error_message: error.response.data.message,
+            loading: false,
           });
 
           let error_lists = "";
@@ -66,10 +72,12 @@ class Register extends Component {
   };
 
   render() {
-    const { message, error_message, errors, loggedIn } = this.state;
-    if (loggedIn) {
+    const { message, error_message, errors, loggedIn, loading } = this.state;
+
+    if (localStorage.getItem("token")) {
       return <Navigate to="/expense" />;
     }
+
     return (
       <div>
         <br />
@@ -171,15 +179,17 @@ class Register extends Component {
                   onChange={(event) => this.handleInputChange(event)}
                 />
               </div>
-              <button type="submit" className="btn btn-primary btn-block">
-                Register
+              <br />
+              <button
+                type="submit"
+                className="btn btn-primary btn-block"
+                disabled={loading}
+              >
+                {loading ? "Please wait..." : "Register"}
               </button>
               <br />
-              Already have an account? <Link to="/login">Login</Link>
+              Already have an account? <Link to="/">Login</Link>
               <br />
-              <span onClick={this.goToGoogle} style={{ cursor: "pointer" }}>
-                Sign up with google
-              </span>
             </form>
           </div>
         </div>

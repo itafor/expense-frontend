@@ -3,29 +3,46 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 
 class NavBar extends Component {
+  constructor(props) {
+    super(props);
+    this.logout = this.logout.bind(this);
+    this.state = {
+      access_token: "",
+    };
+  }
   logout = () => {
     localStorage.removeItem("token");
     this.props.setUser(null);
   };
 
+  componentDidMount() {
+    if (this.props) {
+      this.setState({ access_token: localStorage.getItem("token") });
+    }
+  }
+
   render() {
     let button;
     let profile;
-    let chat;
-    if (localStorage.getItem("token")) {
+    if (this.state.access_token) {
       button = (
         <div>
-          <Link className="nav-link" to="/" onClick={this.logout}>
-            Logout
+          <Link
+            className="nav-link"
+            to="/"
+            onClick={this.logout}
+            style={{ color: "red" }}
+          >
+            LOGOUT
           </Link>
         </div>
       );
     } else {
       button = (
-        <div className="float-end">
+        <div className="">
           <ul className="navbar-nav mr-auto">
             <li className="nav-item active">
-              <Link className="nav-link" to="/login">
+              <Link className="nav-link" to="/">
                 Login
               </Link>
             </li>
@@ -42,9 +59,7 @@ class NavBar extends Component {
     return (
       <React.Fragment>
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-          <a className="navbar-brand" href="#">
-            Expense Manager
-          </a>
+          <span className="navbar-brand float-start">Expense Manager</span>
           <button
             className="navbar-toggler"
             type="button"
@@ -62,7 +77,7 @@ class NavBar extends Component {
 
               <li className="nav-item">{profile}</li>
             </ul>
-            <span className="navbar-text">{button}</span>
+            <span className="navbar-text float-end">{button}</span>
           </div>
         </nav>
       </React.Fragment>
