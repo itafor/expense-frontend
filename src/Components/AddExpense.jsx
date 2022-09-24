@@ -204,7 +204,7 @@ class AddExpense extends Component {
             <div className="col-md-10">
               <div className="card">
                 <div className="card-header">
-                  <div className="float-start ">Add Expense</div>
+                  <div className="float-start ">Add Expense + </div>
                   <div className="float-end "></div>
                 </div>
                 <div className="card-body">
@@ -318,7 +318,7 @@ class AddExpense extends Component {
                           onBlur={this.form.handleBlurEvent}
                         ></textarea>
                       </div>
-                      <div className="form-group mt-5 mb-0">
+                      <div className="form-group mb-0">
                         <button
                           onClick={(e) => {
                             this.onSubmit(e);
