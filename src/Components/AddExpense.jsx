@@ -204,7 +204,7 @@ class AddExpense extends Component {
             <div className="col-md-10">
               <div className="card">
                 <div className="card-header">
-                  <div className="float-start ">Add Expense + </div>
+                  <div className="float-start ">Add Expense</div>
                   <div className="float-end "></div>
                 </div>
                 <div className="card-body">
